@@ -25,6 +25,8 @@ def readfile(filetoread):
     # readfile
     # return readin file
 
+def isolatespeaker(speaker):
+    return
 
 def fixnull():
     # find null values in csv
