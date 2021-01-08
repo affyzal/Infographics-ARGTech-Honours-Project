@@ -38,7 +38,7 @@ def fixnull():
     return
 
 
-def tidy():
+def tidyjunk():
     # tidy up unnecessary words
     return
 
@@ -46,6 +46,7 @@ def tidy():
 def isolatetext(speakerfile):
     df = speakerfile
     df2 = df['text']
+    print(df2)
     return df2
 
 
