@@ -15,8 +15,7 @@ import wordcloud
 def main():
     debate1 = readfile("us_election_2020_1st_presidential_debate.csv")
     dfcw, dfdt, dfjb = isolatespeaker(debate1)
-    #dftext = isolatetext(dfcw)
-    print(dftext)
+    dftext = isolatetext(dfcw)
 
 def readfile(filetoread):
     file = filetoread
@@ -43,11 +42,11 @@ def tidy():
     # tidy up unnecessary words
     return
 
+
 def isolatetext(speakerfile):
-    return
-    #df = speakerfile
-    #df2 = df['text']
-    #return df2
+    df = speakerfile
+    df2 = df['text']
+    return df2
 
 
 if __name__ == '__main__':
