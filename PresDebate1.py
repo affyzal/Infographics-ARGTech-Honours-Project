@@ -11,28 +11,26 @@ import warnings
 import datetime
 import wordcloud
 
-def main():
-    print("Helloworld")
-    debate1 = readfile("us_election_2020_1st_presidential_debate.csv")
-    speaker = "Chris Wallace"
-    dfcw = isolatespeaker(speaker)
-    print(dfcw)
 
+def main():
+    debate1 = readfile("us_election_2020_1st_presidential_debate.csv")
+    dfcw, dfdt, dfjb = isolatespeaker(debate1)
+    #dftext = isolatetext(dfcw)
+    print(dftext)
 
 def readfile(filetoread):
     file = filetoread
     df = pd.read_csv(file)
-    #print(df[100:107])
     return df
 
-    # readfile
-    # return readin file
 
-
-def isolatespeaker(isolate):
-    df = pd.read_csv("us_election_2020_1st_presidential_debate.csv")
+#TODO : Add logic to work for every debate
+def isolatespeaker(debatefile):
+    df = debatefile
     dfcw = df[df['speaker'] == 'Chris Wallace']
-    return dfcw
+    dfdt = df[df['speaker'] == 'President Donald J. Trump']
+    dfjb = df[df['speaker'] == 'Vice President Joe Biden']
+    return dfcw, dfdt, dfjb
 
 
 def fixnull():
@@ -45,5 +43,12 @@ def tidy():
     # tidy up unnecessary words
     return
 
+def isolatetext(speakerfile):
+    return
+    #df = speakerfile
+    #df2 = df['text']
+    #return df2
 
-main()
+
+if __name__ == '__main__':
+    main()
