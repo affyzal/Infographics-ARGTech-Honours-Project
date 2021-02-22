@@ -48,35 +48,9 @@ def main():
     cwtext2 = isolatetext(dfkw)
     dttext2 = isolatetext(dfdt2)
     jbtext2 = isolatetext(dfjb2)
-    print(cwtext)
-    print(dttext)
-    print(jbtext)
-
-    print(cwtext2)
-    print(dttext2)
-    print(jbtext2)
-    print(debate1.speaker.unique())
-    print(debate2.speaker.unique())
     
-    #WordCloud(df)
-    text = df.description[0]
+    DoWcs(dfdt, dfdt2, dfjb, dfjb2)
 
-    #wordcloud = WordCloud().generate(text)
-
-    #plt.imshow(wordcloud, interpolation='bilinear')
-    #plt.axis("off")
-    #plt.show()
-    WCloud(text)
-
-    text = df2.text[0]
-
-    #wordcloud2 = WordCloud().generate(text)
-
-    #plt.imshow(wordcloud2, interpolation='bilinear')
-    #plt.axis("off")
-    #plt.show()
-
-    WCloud(text)
 
 def WCloud(content):
     wordcloud = WordCloud().generate(content)
@@ -84,6 +58,19 @@ def WCloud(content):
     plt.axis("off")
     plt.show()
 
+def DoWcs(dfdt, dfdt2, dfjb,dfjb2):
+    dttext1 = " ".join(content for content in dfdt.text)
+    WCloud(dttext1)
+    
+    dttext2 = " ".join(content for content in dfdt2.text)
+    WCloud(dttext2)
+    
+    jbtext1 = " ".join(content for content in dfjb.text)
+    WCloud(jbtext1)
+    
+    jbtext2 = " ".join(content for content in dfjb2.text)
+    WCloud(jbtext2)
+    
 
 def HeatMap(debate):
     heat = debate.groupby(['minute', 'speaker']).count().reset_index()
