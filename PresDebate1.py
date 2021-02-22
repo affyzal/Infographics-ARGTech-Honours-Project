@@ -51,6 +51,17 @@ def main():
     
     DoWcs(dfdt, dfdt2, dfjb, dfjb2)
 
+    dttext11 = " ".join(content for content in dfdt.text)
+    text = dttext11.lower()
+    words = nltk.word_tokenize(text)
+    words = [word for word in words if len(word) > 1]
+    # count word frequencies
+    word_freqs = nltk.FreqDist(words)
+    # plot word frequencies
+    plt.rcParams['figure.figsize'] = [12, 6]
+    plt.title('Word Frequency - Chris Wallace')
+    word_freqs.plot(50)
+
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
 def WCloud(content, imgname):
     wordcloud = WordCloud(max_words=100, width=1280, height=720, normalize_plurals=False).generate(content)
