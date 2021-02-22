@@ -52,24 +52,29 @@ def main():
     DoWcs(dfdt, dfdt2, dfjb, dfjb2)
 
 
-def WCloud(content):
-    wordcloud = WordCloud().generate(content)
+def WCloud(content, imgname):
+    wordcloud = WordCloud(max_font_size=30, max_words=100, normalize_plurals=False).generate(content)
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     plt.show()
+    wordcloud.to_file("img/" + imgname)
 
 def DoWcs(dfdt, dfdt2, dfjb,dfjb2):
     dttext1 = " ".join(content for content in dfdt.text)
-    WCloud(dttext1)
+    imgname = "TrumpWC1.png"
+    WCloud(dttext1, imgname)
     
     dttext2 = " ".join(content for content in dfdt2.text)
-    WCloud(dttext2)
+    imgname = "TrumpWC2.png"
+    WCloud(dttext2, imgname)
     
     jbtext1 = " ".join(content for content in dfjb.text)
-    WCloud(jbtext1)
+    imgname = "BidenWC1.png"
+    WCloud(jbtext1, imgname)
     
     jbtext2 = " ".join(content for content in dfjb2.text)
-    WCloud(jbtext2)
+    imgname = "BidenWC2.png"
+    WCloud(jbtext2, imgname)
     
 
 def HeatMap(debate):
