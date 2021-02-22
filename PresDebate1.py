@@ -39,6 +39,9 @@ def main():
     dttext = isolatetext(dfdt)
     jbtext = isolatetext(dfjb)
 
+    df = pd.read_csv("winemag-data-130k-v2.csv", index_col = 0)
+    df2 = pd.read_csv("us_election_2020_1st_presidential_debate.csv", index_col = 0)
+
     debate2 = readfile("us_election_2020_2nd_presidential_debate.csv")
     #FIX TIMEFRAME HERE
     dfkw, dfdt2, dfjb2 = isolatespeaker(debate2, 2)
@@ -54,8 +57,55 @@ def main():
     print(jbtext2)
     print(debate1.speaker.unique())
     print(debate2.speaker.unique())
+    
+    #WordCloud(df)
+    text = df.description[0]
+
+    #wordcloud = WordCloud().generate(text)
+
+    #plt.imshow(wordcloud, interpolation='bilinear')
+    #plt.axis("off")
+    #plt.show()
+    WCloud(text)
+
+    text = df2.text[0]
+
+    #wordcloud2 = WordCloud().generate(text)
+
+    #plt.imshow(wordcloud2, interpolation='bilinear')
+    #plt.axis("off")
+    #plt.show()
+
+    WCloud(text)
+
+def WCloud(content):
+    wordcloud = WordCloud().generate(content)
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis("off")
+    plt.show()
 
 
+def HeatMap(debate):
+    heat = debate.groupby(['minute', 'speaker']).count().reset_index()
+    heatmap = go.Figure(data=go.Heatmap(
+        x=heat.minute,
+        #x=heat.minutes,
+        y=heat.speaker,
+        colorscale='Viridis_r',
+        colorbar=dict(
+            title="Heat of the discussion",
+            titleside="top",
+            tickmode="array",
+            tickvals=[1, 4, 10],
+            ticktext=["very cool", "normal", "Hot!"],
+            ticks="outside"
+        )
+    ))
+
+    heatmap.update_layout(title='First Debate: # of times each one talks in each minute',
+                      xaxis_nticks=36)
+
+    heatmap.show()
 
 def readfile(filetoread):
     file = filetoread
