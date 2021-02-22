@@ -51,9 +51,9 @@ def main():
     
     DoWcs(dfdt, dfdt2, dfjb, dfjb2)
 
-
+#TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
 def WCloud(content, imgname):
-    wordcloud = WordCloud(max_font_size=30, max_words=100, normalize_plurals=False).generate(content)
+    wordcloud = WordCloud(max_words=100, width=1280, height=720, normalize_plurals=False).generate(content)
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     plt.show()
@@ -75,7 +75,6 @@ def DoWcs(dfdt, dfdt2, dfjb,dfjb2):
     jbtext2 = " ".join(content for content in dfjb2.text)
     imgname = "BidenWC2.png"
     WCloud(jbtext2, imgname)
-    
 
 def HeatMap(debate):
     heat = debate.groupby(['minute', 'speaker']).count().reset_index()
