@@ -64,7 +64,7 @@ def WCount(df, imgname):
     word_freqs = nltk.FreqDist(words)
     # plot word frequencies
     plt.rcParams['figure.figsize'] = [12, 6]
-    plt.title('Word Frequency - ' + imgname)
+    plt.title(imgname)
     word_freqs.plot(50)
     plt.gcf()
     fig.savefig('img/' + imgname)
