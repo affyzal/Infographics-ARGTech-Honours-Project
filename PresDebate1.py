@@ -48,19 +48,34 @@ def main():
     cwtext2 = isolatetext(dfkw)
     dttext2 = isolatetext(dfdt2)
     jbtext2 = isolatetext(dfjb2)
-    
-    DoWcs(dfdt, dfdt2, dfjb, dfjb2)
 
-    dttext11 = " ".join(content for content in dfdt.text)
-    text = dttext11.lower()
+    DoWClouds(dfdt, dfdt2, dfjb, dfjb2)
+
+    DoWCounts(dfdt, dfdt2, dfjb, dfjb2)
+
+#TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
+def WCount(df, imgname):
+    fig = plt.figure(figsize=(15,10))
+    dftext = " ".join(content for content in df.text)
+    text = dftext.lower()
     words = nltk.word_tokenize(text)
     words = [word for word in words if len(word) > 1]
     # count word frequencies
     word_freqs = nltk.FreqDist(words)
     # plot word frequencies
     plt.rcParams['figure.figsize'] = [12, 6]
-    plt.title('Word Frequency - Chris Wallace')
+    plt.title('Word Frequency - ' + imgname)
     word_freqs.plot(50)
+    plt.gcf()
+    fig.savefig('img/' + imgname)
+    plt.show()
+
+def DoWCounts(dfdt, dfdt2, dfjb, dfjb2):
+    WCount(dfdt, 'Debate 1 - Trump Word Frequency')
+    WCount(dfdt2, 'Debate 2 - Trump Word Frequency')
+    WCount(dfjb, 'Debate 1 - Biden Word Frequency')
+    WCount(dfjb2, 'Debate 2 - Biden Word Frequency')
+
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
 def WCloud(content, imgname):
@@ -70,19 +85,19 @@ def WCloud(content, imgname):
     plt.show()
     wordcloud.to_file("img/" + imgname)
 
-def DoWcs(dfdt, dfdt2, dfjb,dfjb2):
+def DoWClouds(dfdt, dfdt2, dfjb,dfjb2):
     dttext1 = " ".join(content for content in dfdt.text)
     imgname = "TrumpWC1.png"
     WCloud(dttext1, imgname)
-    
+
     dttext2 = " ".join(content for content in dfdt2.text)
     imgname = "TrumpWC2.png"
     WCloud(dttext2, imgname)
-    
+
     jbtext1 = " ".join(content for content in dfjb.text)
     imgname = "BidenWC1.png"
     WCloud(jbtext1, imgname)
-    
+
     jbtext2 = " ".join(content for content in dfjb2.text)
     imgname = "BidenWC2.png"
     WCloud(jbtext2, imgname)
