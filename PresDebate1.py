@@ -13,7 +13,9 @@ import plotly
 import warnings
 import datetime
 import wordcloud
+from nltk.sentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
+import textblob
 from PIL import Image
 
 import matplotlib.pyplot as plt
@@ -25,12 +27,17 @@ import plotly.figure_factory as ff
 import warnings
 import os
 #%matplotlib inline
-
-#TODO : FIX NAN VALUE IN TIME IN DEBATE AND MAKE DATAFRAME INTO ONE PART
-#TODO : FIX TIME VALUES IN DEABATE TO NOT BE SPLIT UP INTO PARTS AND MAKE DATAFRAME INTO ONE PART
 from wordcloud import WordCloud
 
 
+#TODO : FIX NAN VALUE IN TIME IN DEBATE AND MAKE DATAFRAME INTO ONE PART
+#TODO : FIX TIME VALUES IN DEABATE TO NOT BE SPLIT UP INTO PARTS AND MAKE DATAFRAME INTO ONE PART
+#TODO : MAKE SENTIMENT CODE EFFICIENT WITH FUNCTIONS
+#TODO : BIGRAMS
+#TODO ; FIX HEATMAP
+#TODO : SENTENCE ANALYSIS
+#TODO : VISUALISATIONS FOR SENTIMENT, BIGRAMS, HEATMAP, SENTENCE ANALYSIS
+#TODO : CLEANUP CODE
 def main():
     debate1 = readfile("us_election_2020_1st_presidential_debate.csv")
     #FIX TIMEFRAME HERE
@@ -53,7 +60,88 @@ def main():
 
     DoWCounts(dfdt, dfdt2, dfjb, dfjb2)
 
+
+    print("Debate 1 - Donald Trump Polarity")
+    dftext = " ".join(content for content in dfdt.text)
+    sia = SentimentIntensityAnalyzer()
+    sent = sia.polarity_scores(dftext)
+    sent_val = sent['compound']
+    sent.pop('compound')
+    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment Split = ' , sent)
+    print('####################################')
+
+    print("Debate 2 - Donald Trump Polarity")
+    dftext = " ".join(content for content in dfdt2.text)
+    sia = SentimentIntensityAnalyzer()
+    sent = sia.polarity_scores(dftext)
+    sent_val = sent['compound']
+    sent.pop('compound')
+    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment Split = ' , sent)
+    print('####################################')
+
+
+    print("Debate 2 - Joe Biden Polarity")
+    dftext = " ".join(content for content in dfjb.text)
+    sia = SentimentIntensityAnalyzer()
+    sent = sia.polarity_scores(dftext)
+    sent_val = sent['compound']
+    sent.pop('compound')
+    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment Split = ' , sent)
+    print('####################################')
+
+
+    print("Debate 2 - Joe Biden Polarity")
+    dftext = " ".join(content for content in dfjb2.text)
+    sia = SentimentIntensityAnalyzer()
+    sent = sia.polarity_scores(dftext)
+    sent_val = sent['compound']
+    sent.pop('compound')
+    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment Split = ', sent)
+    print('####################################')
+
+    print("Debate 1 - Donald Trump Subjectivity")
+    dftext = " ".join(content for content in dfdt.text)
+    blob_object = TextBlob(dftext)
+    sentences = blob_object.sentences
+    analysis = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', analysis)
+    print('####################################')
+
+    print("Debate 2 - Donald Trump Subjectivity")
+    dftext = " ".join(content for content in dfdt2.text)
+    blob_object = TextBlob(dftext)
+    sentences = blob_object.sentences
+    analysis = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', analysis)
+    print('####################################')
+
+    print("Debate 1 - Joe Biden Subjectivity")
+    dftext = " ".join(content for content in dfjb.text)
+    blob_object = TextBlob(dftext)
+    sentences = blob_object.sentences
+    analysis = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', analysis)
+    print('####################################')
+
+    print("Debate 2 - Joe Biden Subjectivity")
+    dftext = " ".join(content for content in dfjb2.text)
+    blob_object = TextBlob(dftext)
+    sentences = blob_object.sentences
+    analysis = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', analysis)
+    print('####################################')
+
+  # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
+  # # Creating a textblob object and assigning the sentiment property
+  # analysis = TextBlob(sentence).sentiment
+  # print(analysis)
+
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
+#TODO : TREEMAP VIS
 def WCount(df, imgname):
     fig = plt.figure(figsize=(15,10))
     dftext = " ".join(content for content in df.text)
@@ -102,6 +190,7 @@ def DoWClouds(dfdt, dfdt2, dfjb,dfjb2):
     imgname = "BidenWC2.png"
     WCloud(jbtext2, imgname)
 
+#TODO: Completely re-do heatmap code
 def HeatMap(debate):
     heat = debate.groupby(['minute', 'speaker']).count().reset_index()
     heatmap = go.Figure(data=go.Heatmap(
@@ -129,7 +218,6 @@ def readfile(filetoread):
     df = pd.read_csv(file)
     return df
 
-#TODO : Add logic to work for every debate
 def isolatespeaker(debatefile, debatenum):
     df = debatefile
     if debatenum == 1:
@@ -156,7 +244,7 @@ def tidyjunk():
     # tidy up unnecessary words
     return
 
-
+#TODO: update to use new method of extraction to isolate as a string and not a data frame
 def isolatetext(speakerfile):
     df = speakerfile
     df2 = df['text']
