@@ -55,9 +55,9 @@ def main():
     dttext2 = isolatetext(dfdt2)
     jbtext2 = isolatetext(dfjb2)
 
-    DoWClouds(dfdt, dfdt2, dfjb, dfjb2)
+    #DoWClouds(dfdt, dfdt2, dfjb, dfjb2)
 
-    DoWCounts(dfdt, dfdt2, dfjb, dfjb2)
+    #DoWCounts(dfdt, dfdt2, dfjb, dfjb2)
 
 
     print("Debate 1 - Donald Trump Polarity")
@@ -134,12 +134,45 @@ def main():
     print('Subjectivity = ', analysis)
     print('####################################')
 
-    my_bigrams = bigrams(words)
+    #Locate null value and fix
+    debate1.loc[debate1.minute.isnull(), 'minute'] = '00:00'
+
+    FixTimeframe(debate1)
+    FixTimeframe(debate2)
+
+    DoHeatMaps(debate1, debate2)
 
   # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
   # # Creating a textblob object and assigning the sentiment property
   # analysis = TextBlob(sentence).sentiment
   # print(analysis)
+
+
+def FixTimeframe(df):
+    df['seconds'] = 0
+    for i, tm in enumerate(df.minute[1:], 1):
+        timeParts = [int(s) for s in str(tm).split(':')]
+
+        # when we have hour like 01:10:50
+        if (len(timeParts) > 2) and (i < len(df)):
+
+            current = (timeParts[0] * 60 + timeParts[1]) * 60 + timeParts[2]
+            difference = current - df.loc[i - 1, 'seconds']
+            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + difference
+        # when we get to the second half of the debate
+        elif str(tm) == '00:00':
+            df.loc[i, 'seconds'] = 0
+            second_round_idx = i
+            second_round_final_time = df.loc[i - 1, 'seconds']
+
+        # when there's only minute and seconds like 10:50
+        elif (i < len(df)):
+            current = timeParts[0] * 60 + timeParts[1]
+            difference = current - df.loc[i - 1, 'seconds']
+            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + difference
+
+    df.loc[second_round_idx:, 'seconds'] += second_round_final_time
+    df['minutes'] = df.seconds.apply(lambda x: x // 60)
 
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
@@ -192,26 +225,33 @@ def DoWClouds(dfdt, dfdt2, dfjb,dfjb2):
     imgname = "BidenWC2.png"
     WCloud(jbtext2, imgname)
 
-#TODO: Completely re-do heatmap code
-def HeatMap(debate):
-    heat = debate.groupby(['minute', 'speaker']).count().reset_index()
+def DoHeatMaps(debate1, debate2):
+    HeatMap(debate1, 1)
+    HeatMap(debate2, 2)
+
+#TODO: Fix Name Prefixes
+#TODO: Fix Tick values
+def HeatMap(debate, debatenum):
+    columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
     heatmap = go.Figure(data=go.Heatmap(
-        x=heat.minute,
-        #x=heat.minutes,
-        y=heat.speaker,
-        colorscale='Viridis_r',
+        z=columns.minute,
+        x=columns.minutes,
+        y=columns.speaker,
+        colorscale='portland',
         colorbar=dict(
-            title="Heat of the discussion",
+            title="Heatmap of the discussion",
             titleside="top",
             tickmode="array",
-            tickvals=[1, 4, 10],
+            tickvals=[1, 5, 10],
             ticktext=["very cool", "normal", "Hot!"],
             ticks="outside"
         )
     ))
 
-    heatmap.update_layout(title='First Debate: # of times each one talks in each minute',
-                      xaxis_nticks=36)
+    if debatenum is 1:
+        heatmap.update_layout(title='First Debate: # of times each one talks in each minute', xaxis_nticks=36)
+    elif debatenum is 2:
+        heatmap.update_layout(title='Second Debate: # of times each one talks in each minute', xaxis_nticks=36)
 
     heatmap.show()
 
