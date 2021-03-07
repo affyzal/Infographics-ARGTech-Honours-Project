@@ -17,7 +17,6 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 import textblob
 from PIL import Image
-
 import matplotlib.pyplot as plt
 import seaborn as sns
 from plotly.subplots import make_subplots
@@ -135,10 +134,13 @@ def main():
     print('Subjectivity = ', analysis)
     print('####################################')
 
+    my_bigrams = bigrams(words)
+
   # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
   # # Creating a textblob object and assigning the sentiment property
   # analysis = TextBlob(sentence).sentiment
   # print(analysis)
+
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
 #TODO : TREEMAP VIS
