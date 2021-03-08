@@ -268,7 +268,7 @@ def HeatMap(debate, debatenum):
         ))
         heatmap.update_layout(title='Second Debate: # of times each one talks in each minute', xaxis_nticks=36)
         imgname = 'Debate2HeatMap.png'
-    heatmap.write_image('/img' + imgname)
+    heatmap.write_image('img/' + imgname)
     heatmap.show()
 
 def readfile(filetoread):
