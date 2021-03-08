@@ -140,13 +140,30 @@ def main():
     FixTimeframe(debate1)
     FixTimeframe(debate2)
 
-    DoHeatMaps(debate1, debate2)
+    #DoHeatMaps(debate1, debate2)
 
-  # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
+
+ #  dftext = " ".join(content for content in df2.text)
+ #  text = dftext.lower()
+ #  sentences = nltk.sent_tokenize(text)
+ #  sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+ #  debate2['Sentences'] = debate2.text.apply(lambda x: len(sent_detector.tokenize(x)))
+
+    SentenceTokenizer(debate1)
+    SentenceTokenizer(debate2)
+    print('ll')
+
+# sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
   # # Creating a textblob object and assigning the sentiment property
   # analysis = TextBlob(sentence).sentiment
   # print(analysis)
 
+def SentenceTokenizer(df):
+    dftext = " ".join(content for content in df.text)
+    text = dftext.lower()
+    sentences = nltk.sent_tokenize(text)
+    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    df['Sentences'] = df.text.apply(lambda x: len(sent_detector.tokenize(x)))
 
 def FixTimeframe(df):
     df['seconds'] = 0
@@ -231,6 +248,7 @@ def DoHeatMaps(debate1, debate2):
 
 #TODO: Fix Name Prefixes
 #TODO: Fix Tick values
+#TODO: Aesthetic Updates
 def HeatMap(debate, debatenum):
     if debatenum is 1:
         columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
