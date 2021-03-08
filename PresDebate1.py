@@ -232,25 +232,39 @@ def DoHeatMaps(debate1, debate2):
 #TODO: Fix Name Prefixes
 #TODO: Fix Tick values
 def HeatMap(debate, debatenum):
-    columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
-    heatmap = go.Figure(data=go.Heatmap(
-        z=columns.minute,
-        x=columns.minutes,
-        y=columns.speaker,
-        colorscale='portland',
-        colorbar=dict(
-            title="Heatmap of the discussion",
-            titleside="top",
-            tickmode="array",
-            tickvals=[1, 5, 10],
-            ticktext=["very cool", "normal", "Hot!"],
-            ticks="outside"
-        )
-    ))
-
     if debatenum is 1:
+        columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
+        heatmap = go.Figure(data=go.Heatmap(
+            z=columns.minute,
+            x=columns.minutes,
+            y=columns.speaker,
+            colorscale='portland',
+            colorbar=dict(
+                title="Heatmap of the discussion",
+                titleside="top",
+                tickmode="array",
+                tickvals=[1, 6, 13],
+                ticktext=["very cool", "normal", "Hot!"],
+                ticks="outside"
+            )
+        ))
         heatmap.update_layout(title='First Debate: # of times each one talks in each minute', xaxis_nticks=36)
     elif debatenum is 2:
+        columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
+        heatmap = go.Figure(data=go.Heatmap(
+            z=columns.minute,
+            x=columns.minutes,
+            y=columns.speaker,
+            colorscale='portland',
+            colorbar=dict(
+                title="Heatmap of the discussion",
+                titleside="top",
+                tickmode="array",
+                tickvals=[1, 5, 10],
+                ticktext=["very cool", "normal", "Hot!"],
+                ticks="outside"
+            )
+        ))
         heatmap.update_layout(title='Second Debate: # of times each one talks in each minute', xaxis_nticks=36)
 
     heatmap.show()
