@@ -29,11 +29,8 @@ import os
 from wordcloud import WordCloud
 
 
-#TODO : FIX NAN VALUE IN TIME IN DEBATE AND MAKE DATAFRAME INTO ONE PART
-#TODO : FIX TIME VALUES IN DEABATE TO NOT BE SPLIT UP INTO PARTS AND MAKE DATAFRAME INTO ONE PART
 #TODO : MAKE SENTIMENT CODE EFFICIENT WITH FUNCTIONS
 #TODO : BIGRAMS
-#TODO ; FIX HEATMAP
 #TODO : SENTENCE ANALYSIS
 #TODO : VISUALISATIONS FOR SENTIMENT, BIGRAMS, HEATMAP, SENTENCE ANALYSIS
 #TODO : CLEANUP CODE
@@ -142,21 +139,29 @@ def main():
 
     #DoHeatMaps(debate1, debate2)
 
-
- #  dftext = " ".join(content for content in df2.text)
- #  text = dftext.lower()
- #  sentences = nltk.sent_tokenize(text)
- #  sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
- #  debate2['Sentences'] = debate2.text.apply(lambda x: len(sent_detector.tokenize(x)))
-
     SentenceTokenizer(debate1)
     SentenceTokenizer(debate2)
+
+ #  SentenceTokenizer(dfdt)
+ #  SentenceTokenizer(dfjb)
+
+ #  SentenceTokenizer(dfdt2)
+ #  SentenceTokenizer(dfjb2)
+
+    # summing up the number of sentences
+    sentencenum = debate1.groupby(['speaker']).sum()[['Sentences']].reset_index()
+    sentencenum2 = debate2.groupby(['speaker']).sum()[['Sentences']].reset_index()
+
+    print(sentencenum)
+    print('#######################')
+    print(sentencenum2)
+
     print('ll')
 
 # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
   # # Creating a textblob object and assigning the sentiment property
   # analysis = TextBlob(sentence).sentiment
-  # print(analysis)
+  # print(analysis)+-
 
 def SentenceTokenizer(df):
     dftext = " ".join(content for content in df.text)
@@ -164,6 +169,7 @@ def SentenceTokenizer(df):
     sentences = nltk.sent_tokenize(text)
     sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
     df['Sentences'] = df.text.apply(lambda x: len(sent_detector.tokenize(x)))
+    #print(len(sentences))
 
 def FixTimeframe(df):
     df['seconds'] = 0
