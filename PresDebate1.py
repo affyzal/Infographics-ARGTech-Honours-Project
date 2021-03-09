@@ -163,6 +163,22 @@ def main():
     print(totalsents)
     print(totalsents2)
 
+    bidencount = sentencenum.at[2, 'sentences'] + sentencenum2.at[1, 'sentences']
+    trumpcount = sentencenum.at[1, 'sentences'] + sentencenum2.at[0, 'sentences']
+
+    trumppercentage1 = int(sentencenum.at[1, 'sentences'] / totalsents * 100)
+    bidenpercentage1 = int(sentencenum.at[2, 'sentences'] / totalsents * 100)
+    mediatorpercentage1 = int(sentencenum.at[0, 'sentences'] / totalsents * 100)
+
+    trumppercentage2 = int(sentencenum2.at[0, 'sentences'] / totalsents * 100)
+    bidenpercentage2 = int(sentencenum2.at[1, 'sentences'] / totalsents * 100)
+    mediatorpercentage2 = int(sentencenum.at[2, 'sentences'] / totalsents * 100)
+
+    print(trumppercentage2)
+    print(bidenpercentage2)
+    print(mediatorpercentage2)
+
+
     fig = go.Figure(
         data=[go.Bar(x=['First Debate', 'Second Debate'], y=[totalsents, totalsents2])],
         layout=go.Layout(
@@ -183,29 +199,35 @@ def main():
                      text =[totalsents, totalsents2]),
                      row=1, col=1)
 
-    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate'],
-                     y=[totalsents, totalsents2],
-                     text =[totalsents, totalsents2]),
+    #Donald Trump sentence counts for both debates
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate', 'Total'],
+                     y=[sentencenum.at[1, 'sentences'], sentencenum2.at[0, 'sentences'], trumpcount],
+                     text =[sentencenum.at[1, 'sentences'], sentencenum2.at[0, 'sentences'], trumpcount]),
                      row=1, col=2)
 
-    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate'],
-                     y=[totalsents, totalsents2],
-                     text =[totalsents, totalsents2]),
+    #Joe Biden sentence counts for both debates
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate', 'Total'],
+                     y=[sentencenum.at[2, 'sentences'], sentencenum2.at[1, 'sentences'], bidencount],
+                     text =[sentencenum.at[2, 'sentences'], sentencenum2.at[1, 'sentences'], bidencount]),
                      row=1, col=3)
 
+    #Debate 1 sentence % for each speaker
     fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden', 'Mediator'],
-                     y=[1000, 1000, 1000],
-                     text =[1000, 1000, 1000]),
+                     y=[sentencenum.at[1, 'sentences'], sentencenum.at[2, 'sentences'], sentencenum.at[0, 'sentences']],
+                     text =[str(trumppercentage1)+'%', str(bidenpercentage1)+'%', str(mediatorpercentage1)+'%']),
                      row=2, col=2)
 
+    #Debate 2 sentence % for each speaker
     fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden', 'Mediator'],
-                     y=[1000, 1000, 1000],
-                     text =[1000, 1000, 1000]),
+                     y=[sentencenum2.at[0, 'sentences'], sentencenum2.at[1, 'sentences'], sentencenum.at[2, 'sentences']],
+                     text =[str(trumppercentage2)+'%', str(bidenpercentage2)+'%', str(mediatorpercentage2)+'%']),
                      row=2, col=3)
 
     imgname = 'SentenceAnalysis.png'
     fig.write_image('img/' + imgname)
-
+    fig.update_traces(textposition='outside', textfont_size=8)
+    fig.update_layout(showlegend=False, title_text="Sentence Analysis")
+    fig.update_yaxes(title_text='count')
     fig.show()
 
 # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
