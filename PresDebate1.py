@@ -149,14 +149,62 @@ def main():
  #  SentenceTokenizer(dfjb2)
 
     # summing up the number of sentences
-    sentencenum = debate1.groupby(['speaker']).sum()[['Sentences']].reset_index()
-    sentencenum2 = debate2.groupby(['speaker']).sum()[['Sentences']].reset_index()
+    sentencenum = debate1.groupby(['speaker']).sum()[['sentences']].reset_index()
+    sentencenum2 = debate2.groupby(['speaker']).sum()[['sentences']].reset_index()
 
     print(sentencenum)
     print('#######################')
     print(sentencenum2)
+    print('#######################')
 
-    print('ll')
+    totalsents = sentencenum.sum().sentences
+    totalsents2 = sentencenum2.sum().sentences
+
+    print(totalsents)
+    print(totalsents2)
+
+    fig = go.Figure(
+        data=[go.Bar(x=['First Debate', 'Second Debate'], y=[totalsents, totalsents2])],
+        layout=go.Layout(
+            title=go.layout.Title(text="# of sentences in total")
+        )
+    )
+
+    fig.show()
+
+
+    fig = make_subplots(rows=2, cols=3,
+                        specs=[[{"rowspan": 2}, {}, {}],
+                        [None, {}, {}]],
+                        subplot_titles=("# of sentences in total", "Donald Trump", "Joe Biden", 'First Debate', 'Second Debate'))
+    
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate'],
+                     y=[totalsents, totalsents2],
+                     text =[totalsents, totalsents2]),
+                     row=1, col=1)
+
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate'],
+                     y=[totalsents, totalsents2],
+                     text =[totalsents, totalsents2]),
+                     row=1, col=2)
+
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate'],
+                     y=[totalsents, totalsents2],
+                     text =[totalsents, totalsents2]),
+                     row=1, col=3)
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden', 'Mediator'],
+                     y=[1000, 1000, 1000],
+                     text =[1000, 1000, 1000]),
+                     row=2, col=2)
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden', 'Mediator'],
+                     y=[1000, 1000, 1000],
+                     text =[1000, 1000, 1000]),
+                     row=2, col=3)
+
+
+    fig.show()
 
 # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
   # # Creating a textblob object and assigning the sentiment property
@@ -168,7 +216,7 @@ def SentenceTokenizer(df):
     text = dftext.lower()
     sentences = nltk.sent_tokenize(text)
     sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
-    df['Sentences'] = df.text.apply(lambda x: len(sent_detector.tokenize(x)))
+    df['sentences'] = df.text.apply(lambda x: len(sent_detector.tokenize(x)))
     #print(len(sentences))
 
 def FixTimeframe(df):
@@ -314,12 +362,6 @@ def isolatespeaker(debatefile, debatenum):
     #dfdt = df[df['speaker'] == 'President Donald J. Trump']
     #dfjb = df[df['speaker'] == 'Vice President Joe Biden']
     return host, dfdt, dfjb
-
-
-def fixtimeframe():
-    # find null values in csv
-    # fix
-    return
 
 
 def tidyjunk():
