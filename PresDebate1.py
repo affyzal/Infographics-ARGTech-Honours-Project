@@ -203,6 +203,8 @@ def main():
                      text =[1000, 1000, 1000]),
                      row=2, col=3)
 
+    imgname = 'SentenceAnalysis.png'
+    fig.write_image('img/' + imgname)
 
     fig.show()
 
