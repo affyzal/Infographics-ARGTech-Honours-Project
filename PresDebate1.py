@@ -277,6 +277,8 @@ def main():
             row=2, col=1,
     )
 
+    imgname = 'SentenceHistogram.png'
+    fig.write_image('img/' + imgname)
     fig.update_layout(title_text="Sentence Analysis")
     fig.update_yaxes(title_text='Sentence Count')
     fig.show()
