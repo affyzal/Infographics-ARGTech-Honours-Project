@@ -230,6 +230,57 @@ def main():
     fig.update_yaxes(title_text='count')
     fig.show()
 
+    fig = make_subplots(rows=2, cols=3,
+                        specs=[[{"colspan": 3}, None, None],
+                               [{"colspan": 3}, None, None]],
+                        subplot_titles=("Presidential Debate 1", "Presidential Debate 2"))
+
+    fig.add_trace(go.Histogram(
+            x=debate1[debate1.speaker == 'President Donald J. Trump'].sentences,
+            name = 'Trump', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff1600'),
+            row=1, col=1
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate1[debate1.speaker == 'Vice President Joe Biden'].sentences,
+            name = 'Biden', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#2600ff'),
+            row=1, col=1,
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate1[debate1.speaker == 'Chris Wallace'].sentences,
+            name = 'Mediator', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff00d2'),
+            row=1, col=1,
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate2[debate2.speaker == 'Donald Trump'].sentences,
+            name = 'Trump', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff1600'),
+            row=2, col=1
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate2[debate2.speaker == 'Joe Biden'].sentences,
+            name = 'Biden', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#2600ff'),
+            row=2, col=1,
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate2[debate2.speaker == 'Kristen Welker'].sentences,
+            name = 'Mediator', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff00d2'),
+            row=2, col=1,
+    )
+
+    fig.update_layout(title_text="Sentence Analysis")
+    fig.update_yaxes(title_text='Sentence Count')
+    fig.show()
+
 # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
   # # Creating a textblob object and assigning the sentiment property
   # analysis = TextBlob(sentence).sentiment
