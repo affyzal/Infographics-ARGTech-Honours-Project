@@ -61,9 +61,9 @@ def main():
     dftext = " ".join(content for content in dfdt.text)
     sia = SentimentIntensityAnalyzer()
     sent = sia.polarity_scores(dftext)
-    sent_val = sent['compound']
+    dtpolarity = sent['compound']
     sent.pop('compound')
-    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment - Polarity = ', dtpolarity)
     print('Sentiment Split = ' , sent)
     print('####################################')
 
@@ -82,9 +82,9 @@ def main():
     dftext = " ".join(content for content in dfjb.text)
     sia = SentimentIntensityAnalyzer()
     sent = sia.polarity_scores(dftext)
-    sent_val = sent['compound']
+    jbpolarity = sent['compound']
     sent.pop('compound')
-    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment - Polarity = ', jbpolarity)
     print('Sentiment Split = ' , sent)
     print('####################################')
 
@@ -103,8 +103,8 @@ def main():
     dftext = " ".join(content for content in dfdt.text)
     blob_object = TextBlob(dftext)
     sentences = blob_object.sentences
-    analysis = TextBlob(dftext).subjectivity
-    print('Subjectivity = ', analysis)
+    dtsubjectivity = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', dtsubjectivity)
     print('####################################')
 
     print("Debate 2 - Donald Trump Subjectivity")
@@ -119,8 +119,8 @@ def main():
     dftext = " ".join(content for content in dfjb.text)
     blob_object = TextBlob(dftext)
     sentences = blob_object.sentences
-    analysis = TextBlob(dftext).subjectivity
-    print('Subjectivity = ', analysis)
+    jbsubjectivity = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', jbsubjectivity)
     print('####################################')
 
     print("Debate 2 - Joe Biden Subjectivity")
@@ -131,8 +131,11 @@ def main():
     print('Subjectivity = ', analysis)
     print('####################################')
 
+
     #Locate null value and fix
     debate1.loc[debate1.minute.isnull(), 'minute'] = '00:00'
+
+
 
     FixTimeframe(debate1)
     FixTimeframe(debate2)
@@ -142,11 +145,44 @@ def main():
     SentenceTokenizer(debate1)
     SentenceTokenizer(debate2)
 
- #  SentenceTokenizer(dfdt)
- #  SentenceTokenizer(dfjb)
 
- #  SentenceTokenizer(dfdt2)
- #  SentenceTokenizer(dfjb2)
+
+    set1 = debate1.sentences
+    set2 = debate2.sentences
+    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    list_2 = []
+    list_1 = []
+    for x in debate1.text.apply(lambda x: sent_detector.tokenize(x)):
+        list_1.extend(x)
+    for x in debate2.text.apply(lambda x: sent_detector.tokenize(x)):
+        list_2.extend(x)
+
+    bysentences1 = pd.DataFrame({'speaker': np.repeat(debate1.speaker, set1),
+                               'time': np.repeat(debate1.time, set1),
+                               'sent': list_1})
+    bysentences2 = pd.DataFrame({'speaker': np.repeat(debate2.speaker, set2),
+                                'time': np.repeat(debate2.time, set2),
+                                'sent': list_2})
+
+    fig = make_subplots(rows=2, cols=2,
+                        specs=[[{"rowspan": 2}, {"rowspan": 2}],
+                               [{}, {}]],
+                        subplot_titles=("Subjectivity", "Polarity"))
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
+                        y=[dtsubjectivity, jbsubjectivity],
+                        text =[dtsubjectivity, jbsubjectivity]),
+                        row=1, col=1)
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
+                        y=[dtpolarity, jbpolarity],
+                        text=[dtpolarity, jbpolarity]),
+                        row=1, col=2)
+
+    fig.show()
+
+
+
 
     # summing up the number of sentences
     sentencenum = debate1.groupby(['speaker']).sum()[['sentences']].reset_index()
@@ -294,7 +330,6 @@ def SentenceTokenizer(df):
     sentences = nltk.sent_tokenize(text)
     sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
     df['sentences'] = df.text.apply(lambda x: len(sent_detector.tokenize(x)))
-    #print(len(sentences))
 
 def FixTimeframe(df):
     df['seconds'] = 0
@@ -321,6 +356,7 @@ def FixTimeframe(df):
 
     df.loc[second_round_idx:, 'seconds'] += second_round_final_time
     df['minutes'] = df.seconds.apply(lambda x: x // 60)
+    df['time'] = df.seconds.apply(lambda x:str(datetime.timedelta(seconds=x)))
 
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
