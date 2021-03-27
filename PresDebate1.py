@@ -52,9 +52,9 @@ def main():
     dttext2 = isolatetext(dfdt2)
     jbtext2 = isolatetext(dfjb2)
 
-    #DoWClouds(dfdt, dfdt2, dfjb, dfjb2)
+    DoWClouds(dfdt, dfdt2, dfjb, dfjb2)
 
-    #DoWCounts(dfdt, dfdt2, dfjb, dfjb2)
+    DoWCounts(dfdt, dfdt2, dfjb, dfjb2)
 
 
     print("Debate 1 - Donald Trump Polarity")
@@ -140,7 +140,7 @@ def main():
     FixTimeframe(debate1)
     FixTimeframe(debate2)
 
-    #DoHeatMaps(debate1, debate2)
+    DoHeatMaps(debate1, debate2)
 
     SentenceTokenizer(debate1)
     SentenceTokenizer(debate2)
@@ -163,6 +163,58 @@ def main():
     bysentences2 = pd.DataFrame({'speaker': np.repeat(debate2.speaker, set2),
                                 'time': np.repeat(debate2.time, set2),
                                 'sent': list_2})
+
+    # first df
+    bysentences1['polarity'] = bysentences1.sent.apply(lambda x: TextBlob(x).polarity)
+    bysentences1['subjectivity'] = bysentences1.sent.apply(lambda x: TextBlob(x).subjectivity)
+
+    # second df
+    bysentences2['polarity'] = bysentences2.sent.apply(lambda x: TextBlob(x).polarity)
+    bysentences2['subjectivity'] = bysentences2.sent.apply(lambda x: TextBlob(x).subjectivity)
+
+
+    bysentences1.reset_index(drop=True, inplace=True)
+    bysentences2.reset_index(drop=True, inplace=True)
+
+    both = pd.concat([bysentences1, bysentences2], axis=0)
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Donald Trump'].subjectivity,
+        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='red', opacity=0.75))
+
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Joe Biden'].subjectivity,
+        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='#3498DB', opacity=0.75))
+
+    fig.update_layout(
+        title_text="Number of Sentences used by Debaters with different Subjectivities",
+        yaxis_title_text='Number of Sentences',
+        xaxis_title_text='Subjectivity',
+        bargap=0.1, bargroupgap=0.1)
+
+    fig.show()
+
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Donald Trump'].polarity,
+        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='red', opacity=0.75))
+
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Joe Biden'].polarity,
+        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='#3498DB', opacity=0.75))
+
+    fig.update_layout(
+        title_text="Number of Sentences used by Debaters with different Polarities",
+        yaxis_title_text='Number of Sentences',
+        xaxis_title_text='Polarity',
+        bargap=0.1, bargroupgap=0.1)
+
+    fig.show()
+
 
     fig = make_subplots(rows=2, cols=2,
                         specs=[[{"rowspan": 2}, {"rowspan": 2}],
