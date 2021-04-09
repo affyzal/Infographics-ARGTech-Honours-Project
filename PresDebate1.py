@@ -194,6 +194,7 @@ def main():
         xaxis_title_text='Subjectivity',
         bargap=0.1, bargroupgap=0.1)
 
+    fig.write_image('img/Subjectivities.png')
     fig.show()
 
     fig = go.Figure()
@@ -213,6 +214,7 @@ def main():
         xaxis_title_text='Polarity',
         bargap=0.1, bargroupgap=0.1)
 
+    fig.write_image('img/Polarities.png')
     fig.show()
 
 
@@ -231,6 +233,7 @@ def main():
                         text=[dtpolarity, jbpolarity]),
                         row=1, col=2)
 
+    fig.write_image('img/Sentiment.png')
     fig.show()
 
 
@@ -274,6 +277,7 @@ def main():
         )
     )
 
+    fig.write_image('img/SentenceCounts.png')
     fig.show()
 
 
