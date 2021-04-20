@@ -17,7 +17,6 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 import textblob
 from PIL import Image
-
 import matplotlib.pyplot as plt
 import seaborn as sns
 from plotly.subplots import make_subplots
@@ -30,11 +29,8 @@ import os
 from wordcloud import WordCloud
 
 
-#TODO : FIX NAN VALUE IN TIME IN DEBATE AND MAKE DATAFRAME INTO ONE PART
-#TODO : FIX TIME VALUES IN DEABATE TO NOT BE SPLIT UP INTO PARTS AND MAKE DATAFRAME INTO ONE PART
 #TODO : MAKE SENTIMENT CODE EFFICIENT WITH FUNCTIONS
 #TODO : BIGRAMS
-#TODO ; FIX HEATMAP
 #TODO : SENTENCE ANALYSIS
 #TODO : VISUALISATIONS FOR SENTIMENT, BIGRAMS, HEATMAP, SENTENCE ANALYSIS
 #TODO : CLEANUP CODE
@@ -65,9 +61,9 @@ def main():
     dftext = " ".join(content for content in dfdt.text)
     sia = SentimentIntensityAnalyzer()
     sent = sia.polarity_scores(dftext)
-    sent_val = sent['compound']
+    dtpolarity = sent['compound']
     sent.pop('compound')
-    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment - Polarity = ', dtpolarity)
     print('Sentiment Split = ' , sent)
     print('####################################')
 
@@ -86,9 +82,9 @@ def main():
     dftext = " ".join(content for content in dfjb.text)
     sia = SentimentIntensityAnalyzer()
     sent = sia.polarity_scores(dftext)
-    sent_val = sent['compound']
+    jbpolarity = sent['compound']
     sent.pop('compound')
-    print('Sentiment - Polarity = ', sent_val)
+    print('Sentiment - Polarity = ', jbpolarity)
     print('Sentiment Split = ' , sent)
     print('####################################')
 
@@ -107,8 +103,8 @@ def main():
     dftext = " ".join(content for content in dfdt.text)
     blob_object = TextBlob(dftext)
     sentences = blob_object.sentences
-    analysis = TextBlob(dftext).subjectivity
-    print('Subjectivity = ', analysis)
+    dtsubjectivity = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', dtsubjectivity)
     print('####################################')
 
     print("Debate 2 - Donald Trump Subjectivity")
@@ -123,8 +119,8 @@ def main():
     dftext = " ".join(content for content in dfjb.text)
     blob_object = TextBlob(dftext)
     sentences = blob_object.sentences
-    analysis = TextBlob(dftext).subjectivity
-    print('Subjectivity = ', analysis)
+    jbsubjectivity = TextBlob(dftext).subjectivity
+    print('Subjectivity = ', jbsubjectivity)
     print('####################################')
 
     print("Debate 2 - Joe Biden Subjectivity")
@@ -135,10 +131,289 @@ def main():
     print('Subjectivity = ', analysis)
     print('####################################')
 
-  # sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
+
+    #Locate null value and fix
+    debate1.loc[debate1.minute.isnull(), 'minute'] = '00:00'
+
+
+
+    FixTimeframe(debate1)
+    FixTimeframe(debate2)
+
+    DoHeatMaps(debate1, debate2)
+
+    SentenceTokenizer(debate1)
+    SentenceTokenizer(debate2)
+
+
+
+    set1 = debate1.sentences
+    set2 = debate2.sentences
+    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    list_2 = []
+    list_1 = []
+    for x in debate1.text.apply(lambda x: sent_detector.tokenize(x)):
+        list_1.extend(x)
+    for x in debate2.text.apply(lambda x: sent_detector.tokenize(x)):
+        list_2.extend(x)
+
+    bysentences1 = pd.DataFrame({'speaker': np.repeat(debate1.speaker, set1),
+                               'time': np.repeat(debate1.time, set1),
+                               'sent': list_1})
+    bysentences2 = pd.DataFrame({'speaker': np.repeat(debate2.speaker, set2),
+                                'time': np.repeat(debate2.time, set2),
+                                'sent': list_2})
+
+    # first df
+    bysentences1['polarity'] = bysentences1.sent.apply(lambda x: TextBlob(x).polarity)
+    bysentences1['subjectivity'] = bysentences1.sent.apply(lambda x: TextBlob(x).subjectivity)
+
+    # second df
+    bysentences2['polarity'] = bysentences2.sent.apply(lambda x: TextBlob(x).polarity)
+    bysentences2['subjectivity'] = bysentences2.sent.apply(lambda x: TextBlob(x).subjectivity)
+
+
+    bysentences1.reset_index(drop=True, inplace=True)
+    bysentences2.reset_index(drop=True, inplace=True)
+
+    both = pd.concat([bysentences1, bysentences2], axis=0)
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Donald Trump'].subjectivity,
+        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='red', opacity=0.75))
+
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Joe Biden'].subjectivity,
+        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='#3498DB', opacity=0.75))
+
+    fig.update_layout(
+        title_text="Number of Sentences used by Debaters with different Subjectivities",
+        yaxis_title_text='Number of Sentences',
+        xaxis_title_text='Subjectivity',
+        bargap=0.1, bargroupgap=0.1)
+
+    fig.write_image('img/Subjectivities.png')
+    fig.show()
+
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Donald Trump'].polarity,
+        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='red', opacity=0.75))
+
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Joe Biden'].polarity,
+        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='#3498DB', opacity=0.75))
+
+    fig.update_layout(
+        title_text="Number of Sentences used by Debaters with different Polarities",
+        yaxis_title_text='Number of Sentences',
+        xaxis_title_text='Polarity',
+        bargap=0.1, bargroupgap=0.1)
+
+    fig.write_image('img/Polarities.png')
+    fig.show()
+
+
+    fig = make_subplots(rows=2, cols=2,
+                        specs=[[{"rowspan": 2}, {"rowspan": 2}],
+                               [{}, {}]],
+                        subplot_titles=("Subjectivity", "Polarity"))
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
+                        y=[dtsubjectivity, jbsubjectivity],
+                        text =[dtsubjectivity, jbsubjectivity]),
+                        row=1, col=1)
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
+                        y=[dtpolarity, jbpolarity],
+                        text=[dtpolarity, jbpolarity]),
+                        row=1, col=2)
+
+    fig.write_image('img/Sentiment.png')
+    fig.show()
+
+
+
+
+    # summing up the number of sentences
+    sentencenum = debate1.groupby(['speaker']).sum()[['sentences']].reset_index()
+    sentencenum2 = debate2.groupby(['speaker']).sum()[['sentences']].reset_index()
+
+    print(sentencenum)
+    print('#######################')
+    print(sentencenum2)
+    print('#######################')
+
+    totalsents = sentencenum.sum().sentences
+    totalsents2 = sentencenum2.sum().sentences
+
+    print(totalsents)
+    print(totalsents2)
+
+    bidencount = sentencenum.at[2, 'sentences'] + sentencenum2.at[1, 'sentences']
+    trumpcount = sentencenum.at[1, 'sentences'] + sentencenum2.at[0, 'sentences']
+
+    trumppercentage1 = int(sentencenum.at[1, 'sentences'] / totalsents * 100)
+    bidenpercentage1 = int(sentencenum.at[2, 'sentences'] / totalsents * 100)
+    mediatorpercentage1 = int(sentencenum.at[0, 'sentences'] / totalsents * 100)
+
+    trumppercentage2 = int(sentencenum2.at[0, 'sentences'] / totalsents * 100)
+    bidenpercentage2 = int(sentencenum2.at[1, 'sentences'] / totalsents * 100)
+    mediatorpercentage2 = int(sentencenum.at[2, 'sentences'] / totalsents * 100)
+
+    print(trumppercentage2)
+    print(bidenpercentage2)
+    print(mediatorpercentage2)
+
+
+    fig = go.Figure(
+        data=[go.Bar(x=['First Debate', 'Second Debate'], y=[totalsents, totalsents2])],
+        layout=go.Layout(
+            title=go.layout.Title(text="# of sentences in total")
+        )
+    )
+
+    fig.write_image('img/SentenceCounts.png')
+    fig.show()
+
+
+    fig = make_subplots(rows=2, cols=3,
+                        specs=[[{"rowspan": 2}, {}, {}],
+                        [None, {}, {}]],
+                        subplot_titles=("# of sentences in total", "Donald Trump", "Joe Biden", 'First Debate', 'Second Debate'))
+    
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate'],
+                     y=[totalsents, totalsents2],
+                     text =[totalsents, totalsents2]),
+                     row=1, col=1)
+
+    #Donald Trump sentence counts for both debates
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate', 'Total'],
+                     y=[sentencenum.at[1, 'sentences'], sentencenum2.at[0, 'sentences'], trumpcount],
+                     text =[sentencenum.at[1, 'sentences'], sentencenum2.at[0, 'sentences'], trumpcount]),
+                     row=1, col=2)
+
+    #Joe Biden sentence counts for both debates
+    fig.add_trace(go.Bar(x=['First Debate', 'Second Debate', 'Total'],
+                     y=[sentencenum.at[2, 'sentences'], sentencenum2.at[1, 'sentences'], bidencount],
+                     text =[sentencenum.at[2, 'sentences'], sentencenum2.at[1, 'sentences'], bidencount]),
+                     row=1, col=3)
+
+    #Debate 1 sentence % for each speaker
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden', 'Mediator'],
+                     y=[sentencenum.at[1, 'sentences'], sentencenum.at[2, 'sentences'], sentencenum.at[0, 'sentences']],
+                     text =[str(trumppercentage1)+'%', str(bidenpercentage1)+'%', str(mediatorpercentage1)+'%']),
+                     row=2, col=2)
+
+    #Debate 2 sentence % for each speaker
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden', 'Mediator'],
+                     y=[sentencenum2.at[0, 'sentences'], sentencenum2.at[1, 'sentences'], sentencenum.at[2, 'sentences']],
+                     text =[str(trumppercentage2)+'%', str(bidenpercentage2)+'%', str(mediatorpercentage2)+'%']),
+                     row=2, col=3)
+
+    imgname = 'SentenceAnalysis.png'
+    fig.write_image('img/' + imgname)
+    fig.update_traces(textposition='outside', textfont_size=8)
+    fig.update_layout(showlegend=False, title_text="Sentence Analysis")
+    fig.update_yaxes(title_text='count')
+    fig.show()
+
+    fig = make_subplots(rows=2, cols=3,
+                        specs=[[{"colspan": 3}, None, None],
+                               [{"colspan": 3}, None, None]],
+                        subplot_titles=("Presidential Debate 1", "Presidential Debate 2"))
+
+    fig.add_trace(go.Histogram(
+            x=debate1[debate1.speaker == 'President Donald J. Trump'].sentences,
+            name = 'Trump', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff1600'),
+            row=1, col=1
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate1[debate1.speaker == 'Vice President Joe Biden'].sentences,
+            name = 'Biden', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#2600ff'),
+            row=1, col=1,
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate1[debate1.speaker == 'Chris Wallace'].sentences,
+            name = 'Mediator', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff00d2'),
+            row=1, col=1,
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate2[debate2.speaker == 'Donald Trump'].sentences,
+            name = 'Trump', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff1600'),
+            row=2, col=1
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate2[debate2.speaker == 'Joe Biden'].sentences,
+            name = 'Biden', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#2600ff'),
+            row=2, col=1,
+    )
+
+    fig.add_trace(go.Histogram(
+            x=debate2[debate2.speaker == 'Kristen Welker'].sentences,
+            name = 'Mediator', xbins=dict(start=-1, end=24, size=1),
+            marker_color='#ff00d2'),
+            row=2, col=1,
+    )
+
+    imgname = 'SentenceHistogram.png'
+    fig.write_image('img/' + imgname)
+    fig.update_layout(title_text="Sentence Analysis")
+    fig.update_yaxes(title_text='Sentence Count')
+    fig.show()
+
+# sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
   # # Creating a textblob object and assigning the sentiment property
   # analysis = TextBlob(sentence).sentiment
-  # print(analysis)
+  # print(analysis)+-
+
+def SentenceTokenizer(df):
+    dftext = " ".join(content for content in df.text)
+    text = dftext.lower()
+    sentences = nltk.sent_tokenize(text)
+    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    df['sentences'] = df.text.apply(lambda x: len(sent_detector.tokenize(x)))
+
+def FixTimeframe(df):
+    df['seconds'] = 0
+    for i, tm in enumerate(df.minute[1:], 1):
+        timeParts = [int(s) for s in str(tm).split(':')]
+
+        # when we have hour like 01:10:50
+        if (len(timeParts) > 2) and (i < len(df)):
+
+            current = (timeParts[0] * 60 + timeParts[1]) * 60 + timeParts[2]
+            difference = current - df.loc[i - 1, 'seconds']
+            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + difference
+        # when we get to the second half of the debate
+        elif str(tm) == '00:00':
+            df.loc[i, 'seconds'] = 0
+            second_round_idx = i
+            second_round_final_time = df.loc[i - 1, 'seconds']
+
+        # when there's only minute and seconds like 10:50
+        elif (i < len(df)):
+            current = timeParts[0] * 60 + timeParts[1]
+            difference = current - df.loc[i - 1, 'seconds']
+            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + difference
+
+    df.loc[second_round_idx:, 'seconds'] += second_round_final_time
+    df['minutes'] = df.seconds.apply(lambda x: x // 60)
+    df['time'] = df.seconds.apply(lambda x:str(datetime.timedelta(seconds=x)))
+
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
 #TODO : TREEMAP VIS
@@ -190,27 +465,51 @@ def DoWClouds(dfdt, dfdt2, dfjb,dfjb2):
     imgname = "BidenWC2.png"
     WCloud(jbtext2, imgname)
 
-#TODO: Completely re-do heatmap code
-def HeatMap(debate):
-    heat = debate.groupby(['minute', 'speaker']).count().reset_index()
-    heatmap = go.Figure(data=go.Heatmap(
-        x=heat.minute,
-        #x=heat.minutes,
-        y=heat.speaker,
-        colorscale='Viridis_r',
-        colorbar=dict(
-            title="Heat of the discussion",
-            titleside="top",
-            tickmode="array",
-            tickvals=[1, 4, 10],
-            ticktext=["very cool", "normal", "Hot!"],
-            ticks="outside"
-        )
-    ))
+def DoHeatMaps(debate1, debate2):
+    HeatMap(debate1, 1)
+    HeatMap(debate2, 2)
 
-    heatmap.update_layout(title='First Debate: # of times each one talks in each minute',
-                      xaxis_nticks=36)
-
+#TODO: Fix Name Prefixes
+#TODO: Fix Tick values
+#TODO: Aesthetic Updates
+def HeatMap(debate, debatenum):
+    if debatenum is 1:
+        columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
+        heatmap = go.Figure(data=go.Heatmap(
+            z=columns.minute,
+            x=columns.minutes,
+            y=columns.speaker,
+            colorscale='portland',
+            colorbar=dict(
+                title="Heatmap of the discussion",
+                titleside="top",
+                tickmode="array",
+                tickvals=[1, 6, 13],
+                ticktext=["very cool", "normal", "Hot!"],
+                ticks="outside"
+            )
+        ))
+        heatmap.update_layout(title='First Debate: # of times each one talks in each minute', xaxis_nticks=36)
+        imgname = 'Debate1HeatMap.png'
+    elif debatenum is 2:
+        columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
+        heatmap = go.Figure(data=go.Heatmap(
+            z=columns.minute,
+            x=columns.minutes,
+            y=columns.speaker,
+            colorscale='portland',
+            colorbar=dict(
+                title="Heatmap of the discussion",
+                titleside="top",
+                tickmode="array",
+                tickvals=[1, 5, 10],
+                ticktext=["very cool", "normal", "Hot!"],
+                ticks="outside"
+            )
+        ))
+        heatmap.update_layout(title='Second Debate: # of times each one talks in each minute', xaxis_nticks=36)
+        imgname = 'Debate2HeatMap.png'
+    heatmap.write_image('img/' + imgname)
     heatmap.show()
 
 def readfile(filetoread):
@@ -232,12 +531,6 @@ def isolatespeaker(debatefile, debatenum):
     #dfdt = df[df['speaker'] == 'President Donald J. Trump']
     #dfjb = df[df['speaker'] == 'Vice President Joe Biden']
     return host, dfdt, dfjb
-
-
-def fixtimeframe():
-    # find null values in csv
-    # fix
-    return
 
 
 def tidyjunk():
