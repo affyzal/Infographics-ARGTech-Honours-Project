@@ -167,7 +167,7 @@ def main():
     # first df
     bysentences1['polarity'] = bysentences1.sent.apply(lambda x: TextBlob(x).polarity)
     bysentences1['subjectivity'] = bysentences1.sent.apply(lambda x: TextBlob(x).subjectivity)
-
+    #comments
     # second df
     bysentences2['polarity'] = bysentences2.sent.apply(lambda x: TextBlob(x).polarity)
     bysentences2['subjectivity'] = bysentences2.sent.apply(lambda x: TextBlob(x).subjectivity)
