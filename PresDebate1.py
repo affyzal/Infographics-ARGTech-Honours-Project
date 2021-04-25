@@ -375,11 +375,9 @@ def main():
     fig.update_yaxes(title_text='Sentence Count')
     fig.show()
 
-# sentence = '''The platform provides universal access to the world's best education, partnering with top universities and organizations to offer courses online.'''
-  # # Creating a textblob object and assigning the sentiment property
-  # analysis = TextBlob(sentence).sentiment
-  # print(analysis)+-
 
+#function to tokenise dataframe into sentecnes
+#@param df: dataframe to tokenize
 def SentenceTokenizer(df):
     dftext = " ".join(content for content in df.text)
     text = dftext.lower()
@@ -417,6 +415,9 @@ def FixTimeframe(df):
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
 #TODO : TREEMAP VIS
+#function to create Wcount
+#@param df: dataframe to use for create graph
+#@param imgname: name to save graph img as
 def WCount(df, imgname):
     fig = plt.figure(figsize=(15,10))
     dftext = " ".join(content for content in df.text)
@@ -433,6 +434,9 @@ def WCount(df, imgname):
     fig.savefig('img/' + imgname)
     plt.show()
 
+
+#function to generate word counts
+#@param dfdt,dfdt2,dfjb,dfjb2: dataframes for biden and trump to use for word counts
 def DoWCounts(dfdt, dfdt2, dfjb, dfjb2):
     WCount(dfdt, 'Debate 1 - Trump Word Frequency')
     WCount(dfdt2, 'Debate 2 - Trump Word Frequency')
@@ -441,6 +445,9 @@ def DoWCounts(dfdt, dfdt2, dfjb, dfjb2):
 
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
+#function to create word cloud
+#@param content: content to use to create wordcloud
+#@param imgname: name so save img as
 def WCloud(content, imgname):
     wordcloud = WordCloud(max_words=100, width=1280, height=720, normalize_plurals=False).generate(content)
     plt.imshow(wordcloud, interpolation='bilinear')
@@ -448,6 +455,8 @@ def WCloud(content, imgname):
     plt.show()
     wordcloud.to_file("img/" + imgname)
 
+#function to create generate word clouds
+#@param dfdt, dfdt2, dfjb, dfjb2 : dataframes for biden and trump of both debates.
 def DoWClouds(dfdt, dfdt2, dfjb,dfjb2):
     dttext1 = " ".join(content for content in dfdt.text)
     imgname = "TrumpWC1.png"
@@ -465,6 +474,7 @@ def DoWClouds(dfdt, dfdt2, dfjb,dfjb2):
     imgname = "BidenWC2.png"
     WCloud(jbtext2, imgname)
 
+#Function which generates the needed heatmaps
 def DoHeatMaps(debate1, debate2):
     HeatMap(debate1, 1)
     HeatMap(debate2, 2)
@@ -472,6 +482,9 @@ def DoHeatMaps(debate1, debate2):
 #TODO: Fix Name Prefixes
 #TODO: Fix Tick values
 #TODO: Aesthetic Updates
+#Function to create heatmap
+#@param debate: data to use
+#@param debatenum : which debate to do
 def HeatMap(debate, debatenum):
     if debatenum is 1:
         columns = debate.groupby(['minutes', 'speaker']).count().reset_index()
@@ -512,11 +525,18 @@ def HeatMap(debate, debatenum):
     heatmap.write_image('img/' + imgname)
     heatmap.show()
 
+#readfile into a datafram
+#@param filetoread: filepath to read
+#@return df: dataframed file
 def readfile(filetoread):
     file = filetoread
     df = pd.read_csv(file)
     return df
 
+#function to isolate/extract dataframe by speaker
+#@param debatefile: to extract from
+#@param debatenum: which debate file is being passed in
+#@return host, dfdt, dfjb: speakers
 def isolatespeaker(debatefile, debatenum):
     df = debatefile
     if debatenum == 1:
@@ -533,16 +553,14 @@ def isolatespeaker(debatefile, debatenum):
     return host, dfdt, dfjb
 
 
-def tidyjunk():
-    # tidy up unnecessary words
-    return
-
-#TODO: update to use new method of extraction to isolate as a string and not a data frame
+#function to isolate text from dataframe
+#@param dataframe: to extract from
+#@returns df2: extracted text as dataframe
 def isolatetext(speakerfile):
     df = speakerfile
     df2 = df['text']
     return df2
 
-
+#launch application
 if __name__ == '__main__':
     main()
