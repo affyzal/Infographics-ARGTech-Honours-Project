@@ -144,100 +144,8 @@ def main():
 
     SentenceTokenizer(debate1)
     SentenceTokenizer(debate2)
-
-
-
-    set1 = debate1.sentences
-    set2 = debate2.sentences
-    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
-    list_2 = []
-    list_1 = []
-    for x in debate1.text.apply(lambda x: sent_detector.tokenize(x)):
-        list_1.extend(x)
-    for x in debate2.text.apply(lambda x: sent_detector.tokenize(x)):
-        list_2.extend(x)
-
-    bysentences1 = pd.DataFrame({'speaker': np.repeat(debate1.speaker, set1),
-                               'time': np.repeat(debate1.time, set1),
-                               'sent': list_1})
-    bysentences2 = pd.DataFrame({'speaker': np.repeat(debate2.speaker, set2),
-                                'time': np.repeat(debate2.time, set2),
-                                'sent': list_2})
-
-    # first df
-    bysentences1['polarity'] = bysentences1.sent.apply(lambda x: TextBlob(x).polarity)
-    bysentences1['subjectivity'] = bysentences1.sent.apply(lambda x: TextBlob(x).subjectivity)
-    #comments
-    # second df
-    bysentences2['polarity'] = bysentences2.sent.apply(lambda x: TextBlob(x).polarity)
-    bysentences2['subjectivity'] = bysentences2.sent.apply(lambda x: TextBlob(x).subjectivity)
-
-
-    bysentences1.reset_index(drop=True, inplace=True)
-    bysentences2.reset_index(drop=True, inplace=True)
-
-    both = pd.concat([bysentences1, bysentences2], axis=0)
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(
-        x=both[both.speaker == 'Donald Trump'].subjectivity,
-        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
-        marker_color='red', opacity=0.75))
-
-    fig.add_trace(go.Histogram(
-        x=both[both.speaker == 'Joe Biden'].subjectivity,
-        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
-        marker_color='#3498DB', opacity=0.75))
-
-    fig.update_layout(
-        title_text="Number of Sentences used by Debaters with different Subjectivities",
-        yaxis_title_text='Number of Sentences',
-        xaxis_title_text='Subjectivity',
-        bargap=0.1, bargroupgap=0.1)
-
-    fig.write_image('img/Subjectivities.png')
-    fig.show()
-
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(
-        x=both[both.speaker == 'Donald Trump'].polarity,
-        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
-        marker_color='red', opacity=0.75))
-
-    fig.add_trace(go.Histogram(
-        x=both[both.speaker == 'Joe Biden'].polarity,
-        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
-        marker_color='#3498DB', opacity=0.75))
-
-    fig.update_layout(
-        title_text="Number of Sentences used by Debaters with different Polarities",
-        yaxis_title_text='Number of Sentences',
-        xaxis_title_text='Polarity',
-        bargap=0.1, bargroupgap=0.1)
-
-    fig.write_image('img/Polarities.png')
-    fig.show()
-
-
-    fig = make_subplots(rows=2, cols=2,
-                        specs=[[{"rowspan": 2}, {"rowspan": 2}],
-                               [{}, {}]],
-                        subplot_titles=("Subjectivity", "Polarity"))
-
-    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
-                        y=[dtsubjectivity, jbsubjectivity],
-                        text =[dtsubjectivity, jbsubjectivity]),
-                        row=1, col=1)
-
-    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
-                        y=[dtpolarity, jbpolarity],
-                        text=[dtpolarity, jbpolarity]),
-                        row=1, col=2)
-
-    fig.write_image('img/Sentiment.png')
-    fig.show()
-
-
-
+    
+    Sentiment(debate1, debate2,dtsubjectivity,jbsubjectivity, dtpolarity, jbpolarity )
 
     # summing up the number of sentences
     sentencenum = debate1.groupby(['speaker']).sum()[['sentences']].reset_index()
@@ -269,7 +177,7 @@ def main():
     print(bidenpercentage2)
     print(mediatorpercentage2)
 
-
+    #make graphs
     fig = go.Figure(
         data=[go.Bar(x=['First Debate', 'Second Debate'], y=[totalsents, totalsents2])],
         layout=go.Layout(
@@ -322,6 +230,7 @@ def main():
     fig.update_yaxes(title_text='count')
     fig.show()
 
+    #make graphs
     fig = make_subplots(rows=2, cols=3,
                         specs=[[{"colspan": 3}, None, None],
                                [{"colspan": 3}, None, None]],
@@ -375,6 +284,98 @@ def main():
     fig.update_yaxes(title_text='Sentence Count')
     fig.show()
 
+#function to do subjectivity grpahs
+#passing in debate files and the labelled dataframes.
+def Sentiment(debate1, debate2, dtsubjectivity, jbsubjectivity, dtpolarity, jbpolarity):
+    #prep
+    set1 = debate1.sentences
+    set2 =   debate2.sentences
+    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
+    list_2 = []
+    list_1 = []
+    for x in debate1.text.apply(lambda x: sent_detector.tokenize(x)):
+        list_1.extend(x)
+    for x in debate2.text.apply(lambda x: sent_detector.tokenize(x)):
+        list_2.extend(x)
+
+    bysentences1 = pd.DataFrame({'speaker': np.repeat(debate1.speaker, set1),
+                                 'time': np.repeat(debate1.time, set1),
+                                 'sent': list_1})
+    bysentences2 = pd.DataFrame({'speaker': np.repeat(debate2.speaker, set2),
+                                 'time': np.repeat(debate2.time, set2),
+                                 'sent': list_2})
+    #using textblob
+    # first df
+    bysentences1['polarity'] = bysentences1.sent.apply(lambda x: TextBlob(x).polarity)
+    bysentences1['subjectivity'] = bysentences1.sent.apply(lambda x: TextBlob(x).subjectivity)
+
+    # second df
+    bysentences2['polarity'] = bysentences2.sent.apply(lambda x: TextBlob(x).polarity)
+    bysentences2['subjectivity'] = bysentences2.sent.apply(lambda x: TextBlob(x).subjectivity)
+
+    #reset the indexes
+    bysentences1.reset_index(drop=True, inplace=True)
+    bysentences2.reset_index(drop=True, inplace=True)
+
+    #make graphs
+    both = pd.concat([bysentences1, bysentences2], axis=0)
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Donald Trump'].subjectivity,
+        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='red', opacity=0.75))
+
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Joe Biden'].subjectivity,
+        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='#3498DB', opacity=0.75))
+
+    fig.update_layout(
+        title_text="Number of Sentences used by Debaters with different Subjectivities",
+        yaxis_title_text='Number of Sentences',
+        xaxis_title_text='Subjectivity',
+        bargap=0.1, bargroupgap=0.1)
+
+    fig.write_image('img/Subjectivities.png')
+    fig.show()
+
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Donald Trump'].polarity,
+        name='Trump', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='red', opacity=0.75))
+
+    fig.add_trace(go.Histogram(
+        x=both[both.speaker == 'Joe Biden'].polarity,
+        name='Biden', xbins=dict(start=-1, end=2, size=0.1),
+        marker_color='#3498DB', opacity=0.75))
+
+    fig.update_layout(
+        title_text="Number of Sentences used by Debaters with different Polarities",
+        yaxis_title_text='Number of Sentences',
+        xaxis_title_text='Polarity',
+        bargap=0.1, bargroupgap=0.1)
+
+    fig.write_image('img/Polarities.png')
+    fig.show()
+
+    fig = make_subplots(rows=2, cols=2,
+                        specs=[[{"rowspan": 2}, {"rowspan": 2}],
+                               [{}, {}]],
+                        subplot_titles=("Subjectivity", "Polarity"))
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
+                         y=[dtsubjectivity, jbsubjectivity],
+                         text=[dtsubjectivity, jbsubjectivity]),
+                  row=1, col=1)
+
+    fig.add_trace(go.Bar(x=['Donald Trump', 'Joe Biden'],
+                         y=[dtpolarity, jbpolarity],
+                         text=[dtpolarity, jbpolarity]),
+                  row=1, col=2)
+
+    fig.write_image('img/Sentiment.png')
+    fig.show()
 
 #function to tokenise dataframe into sentecnes
 #@param df: dataframe to tokenize
@@ -385,32 +386,48 @@ def SentenceTokenizer(df):
     sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
     df['sentences'] = df.text.apply(lambda x: len(sent_detector.tokenize(x)))
 
+#function to fix timeframe of dataset since it is consistent such as start time not being 0 and there being a part2 with 0 start
+#@param df: dataframe to fix
 def FixTimeframe(df):
+    #initialise new field
     df['seconds'] = 0
+
+
     for i, tm in enumerate(df.minute[1:], 1):
-        timeParts = [int(s) for s in str(tm).split(':')]
 
-        # when we have hour like 01:10:50
-        if (len(timeParts) > 2) and (i < len(df)):
+        #split the time parts into sections for each entry
+        sections = [int(s) for s in str(tm).split(':')]
 
-            current = (timeParts[0] * 60 + timeParts[1]) * 60 + timeParts[2]
-            difference = current - df.loc[i - 1, 'seconds']
-            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + difference
-        # when we get to the second half of the debate
+        # when we theres an hour minutes and seconds
+        if (len(sections) > 2) and (i < len(df)):
+
+            #find currently indexed time and convert
+            current = (sections[0] * 60 + sections[1]) * 60 + sections[2]
+            #find the difference from previous entry
+            diff = current - df.loc[i - 1, 'seconds']
+            #add the difference to previous entry
+            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + diff
+
+        #second half of the debate when time is reset
         elif str(tm) == '00:00':
+            #reset for second part
             df.loc[i, 'seconds'] = 0
-            second_round_idx = i
-            second_round_final_time = df.loc[i - 1, 'seconds']
+            #keep which index part 2 starts
+            part2index = i
+            #keep track of part 2 endtime(secs)
+            part2time = df.loc[i - 1, 'seconds']
 
-        # when there's only minute and seconds like 10:50
+        # when there's only minute and seconds in the field
         elif (i < len(df)):
-            current = timeParts[0] * 60 + timeParts[1]
-            difference = current - df.loc[i - 1, 'seconds']
-            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + difference
+            #do the same but with only minutes and seconds in the timeparts
+            current = sections[0] * 60 + sections[1]
+            diff = current - df.loc[i - 1, 'seconds']
+            df.loc[i, 'seconds'] = df.loc[i - 1, 'seconds'] + diff
 
-    df.loc[second_round_idx:, 'seconds'] += second_round_final_time
-    df['minutes'] = df.seconds.apply(lambda x: x // 60)
-    df['time'] = df.seconds.apply(lambda x:str(datetime.timedelta(seconds=x)))
+    #add the 2nd part time onto the first part time(secs)
+    df.loc[part2index:, 'seconds'] += part2time
+    df['minutes'] = df.seconds.apply(lambda x: x // 60)     #add the minute field using seconds e.g 61secs is on the 1 minute
+    df['time'] = df.seconds.apply(lambda x:str(datetime.timedelta(seconds=x)))      #add time field using seconds and datetime
 
 
 #TODO : Potentially add more stop words to WordCloud, Aesthetic/Design Changes
