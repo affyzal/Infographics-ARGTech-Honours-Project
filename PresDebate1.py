@@ -151,16 +151,8 @@ def main():
     sentencenum = debate1.groupby(['speaker']).sum()[['sentences']].reset_index()
     sentencenum2 = debate2.groupby(['speaker']).sum()[['sentences']].reset_index()
 
-    print(sentencenum)
-    print('#######################')
-    print(sentencenum2)
-    print('#######################')
-
     totalsents = sentencenum.sum().sentences
     totalsents2 = sentencenum2.sum().sentences
-
-    print(totalsents)
-    print(totalsents2)
 
     bidencount = sentencenum.at[2, 'sentences'] + sentencenum2.at[1, 'sentences']
     trumpcount = sentencenum.at[1, 'sentences'] + sentencenum2.at[0, 'sentences']
@@ -172,10 +164,6 @@ def main():
     trumppercentage2 = int(sentencenum2.at[0, 'sentences'] / totalsents * 100)
     bidenpercentage2 = int(sentencenum2.at[1, 'sentences'] / totalsents * 100)
     mediatorpercentage2 = int(sentencenum.at[2, 'sentences'] / totalsents * 100)
-
-    print(trumppercentage2)
-    print(bidenpercentage2)
-    print(mediatorpercentage2)
 
     #make graphs
     fig = go.Figure(
@@ -471,10 +459,11 @@ def DoWCounts(dfdt, dfdt2, dfjb, dfjb2):
 def WCloud(content, imgname):
     if imgname in ['BidenWC1.png', 'BidenWC2.png']:
         tmask = np.array(Image.open("img/Biden.png"))
-    if imgname in ['TrumpWC1.png', 'TrumpWC2.png']:
+    elif imgname in ['TrumpWC1.png', 'TrumpWC2.png']:
         tmask = np.array(Image.open("img/Trump.png"))
     wordcloud = WordCloud(max_words=100, width=1280, height=720, normalize_plurals=False, mask=tmask,
                           contour_color='yellow',
+                          collocations=False,
                           contour_width=20,
                           background_color="black").generate(content)
     plt.imshow(wordcloud, interpolation='bilinear')
