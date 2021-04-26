@@ -224,10 +224,10 @@ def main():
                      row=2, col=3)
 
     imgname = 'SentenceAnalysis.png'
-    fig.write_image('img/' + imgname)
     fig.update_traces(textposition='outside', textfont_size=8)
     fig.update_layout(showlegend=False, title_text="Sentence Analysis")
-    fig.update_yaxes(title_text='count')
+    fig.update_layout(showlegend = False)
+    fig.write_image('img/' + imgname)
     fig.show()
 
     #make graphs
@@ -278,10 +278,12 @@ def main():
             row=2, col=1,
     )
 
+
     imgname = 'SentenceHistogram.png'
-    fig.write_image('img/' + imgname)
     fig.update_layout(title_text="Sentence Analysis")
     fig.update_yaxes(title_text='Sentence Count')
+    fig.update_xaxes(title_text="Number of Sentences per spoken section")
+    fig.write_image('img/' + imgname)
     fig.show()
 
 #function to do subjectivity grpahs
@@ -374,6 +376,7 @@ def Sentiment(debate1, debate2, dtsubjectivity, jbsubjectivity, dtpolarity, jbpo
                          text=[dtpolarity, jbpolarity]),
                   row=1, col=2)
 
+    fig.update_layout(showlegend = False)
     fig.write_image('img/Sentiment.png')
     fig.show()
 
