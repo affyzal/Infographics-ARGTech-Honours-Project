@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\us_election_2020_1st_presidential_debate.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\us_election_2020_2nd_presidential_debate.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
