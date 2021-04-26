@@ -469,7 +469,14 @@ def DoWCounts(dfdt, dfdt2, dfjb, dfjb2):
 #@param content: content to use to create wordcloud
 #@param imgname: name so save img as
 def WCloud(content, imgname):
-    wordcloud = WordCloud(max_words=100, width=1280, height=720, normalize_plurals=False).generate(content)
+    if imgname in ['BidenWC1.png', 'BidenWC2.png']:
+        tmask = np.array(Image.open("img/Biden.png"))
+    if imgname in ['TrumpWC1.png', 'TrumpWC2.png']:
+        tmask = np.array(Image.open("img/Trump.png"))
+    wordcloud = WordCloud(max_words=100, width=1280, height=720, normalize_plurals=False, mask=tmask,
+                          contour_color='yellow',
+                          contour_width=20,
+                          background_color="black").generate(content)
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     plt.show()
