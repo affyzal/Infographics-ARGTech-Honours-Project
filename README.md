@@ -1,3 +1,6 @@
+# Frontend Repo
+https://github.com/affyzal/Inforgraphics-Frontend
+
 # Infographics-ARGTech-Honours-Project
 The Argument Web has been developed at the Centre for Argument Technology (ARG-tech) at the University of Dundee as an integrated infrastructure of argument technologies and datasets. The argumentation and debate datasets curated by ARG-tech are the largest in the world. Our software has an international userbase in industry, academy and education alike. We have recently acquired a 55” multi-touch digital e-poster which is permanently set up in the corridors of the QMB. We intend to use the touch display to visualise and interact with elements of the Argument Web – such as real-time infographics summarising the current usage of the tools and databases, the arguments people are making and analysing, the debates being hosted, and so on. This project will involve both the data aggregation and analysis and the infographic design and creation for communicating up-to-the-second activity.  
 
